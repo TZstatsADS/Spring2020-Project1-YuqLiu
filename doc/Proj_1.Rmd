@@ -1,0 +1,194 @@
+---
+title: "GR 5243 Project 1"
+subtitle: "What have been changed of Country Songs when the world came to 21st Century"
+auther: "Yuqiao Liu"
+output:
+  html_document:
+    df_print: paged
+    code_folding: hide
+---
+```{r Packages, message=FALSE, warning=FALSE}
+# Load the required packages
+library(tidyverse)
+library(tidytext)
+library(tm)
+library(RColorBrewer)
+library(wordcloud)
+library(reshape2)
+library(syuzhet)
+library(sentimentr)
+library(stringr)
+library(beeswarm)
+```
+
+```{r Load the processed data}
+# Load the processed_lyrics data
+load("../output/processed_lyrics.RData")
+```
+#### *Introduction*
+```{r choose the genre topic, message=FALSE}
+#Delete the useless rows and separate the time by 2000 
+lyrics_fil <- dt_lyrics %>% 
+  filter(genre!='Other' & genre!="Not Available") %>% 
+  filter(year > 1900) %>% 
+  mutate(time=ifelse(year<2000, 
+                     "Before 2000", 
+                     "After 2000"
+                     )
+         )
+
+genre_nm <- unique(lyrics_fil$genre)
+cat("The categories of genre are: \n", paste0(genre_nm, sep=','))
+
+# Choose the interested genre 
+lyrics_gerne_chs <- lyrics_fil %>% 
+  filter(genre==genre_nm[5]) 
+```
+#### *Question 1: Did the Main Words change when in 21st Century?*
+```{r get the word freq, message=FALSE}
+# seprate by 2000
+genre_chs <- lyrics_gerne_chs %>%
+  select(year, genre, stemmedwords, time) %>% 
+  unnest_tokens(word, stemmedwords) %>%
+  group_by(time, word) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  transmute(num_time=n) %>% 
+  ungroup()
+total_num <- genre_chs %>% 
+  group_by(time) %>% 
+  summarise(num=sum(num_time))
+
+# get the word frequency in different time period
+genre_chs_freq <- genre_chs %>%
+  left_join(total_num, by="time") %>% 
+  mutate(word_freq=num_time/num*100) %>% 
+  select(time, word, word_freq, num_time)
+
+
+```
+##### Main Words Comparision
+```{r Words plots, message=FALSE, warning=FALSE, fig.dim=c(4, 4), fig.align='center'}
+
+genre_chs_freq %>%
+  acast(word ~ time, value.var = "num_time", fill = 0) %>%
+  comparison.cloud(max.words = 150,
+                   scale=c(5,0.5),
+                   colors = c("red", "blue"),
+                   title.colors=c("red","blue"),
+                   title.bg.colors = "gray",
+                   random.order = F,
+                   match.colors = T
+                   )
+
+# plot of word frequency in different time period
+genre_chs_freq %>% 
+  group_by(time) %>% 
+  top_n(10) %>%
+  ungroup() %>% 
+  mutate(word=reorder(word, word_freq)) %>% 
+  ggplot(aes(word, word_freq, fill=time))+
+  geom_col(show.legend = F)+
+  facet_wrap(~time, scales = "free_y")+
+  coord_flip()+
+  labs(x="Word",
+      y="Frequency(%)", 
+      title="Comparision of Word Frequency \n in Different Time Period")+
+  theme_light()
+```
+
+#### *Question 2: Did the sentiments of songs change?*
+```{r sentmental ANA preparing, eval=FALSE, message=FALSE, warning=FALSE, evl=FALSE, include=FALSE}
+# data preparing for snetimental analysis
+lyric.list=NULL
+for(i in 1:nrow(lyrics_gerne_chs)){
+  sentences=syuzhet::get_sentences(lyrics_gerne_chs$stemmedwords[i])
+  if(length(sentences)>0){
+    emotions=matrix(emotion(sentences)$emotion, 
+                    nrow=length(sentences), 
+                    byrow=T)
+    colnames(emotions)=emotion(sentences[1])$emotion_type
+    emotions=data.frame(emotions)
+    emotions=select(emotions,
+                   anticipation,
+                   joy, 
+                   surprise, 
+                   trust, 
+                   anger, 
+                   disgust, 
+                   fear, 
+                   sadness)
+
+    lyric.list=rbind(lyric.list, 
+                        cbind(lyrics_gerne_chs[i,-ncol(lyrics_gerne_chs)],
+                              song_lyr=as.character(sentences),
+                              emotions
+                              )
+    )
+  }
+}
+lyric.list <- lyric.list %>% 
+  inner_join(lyrics_gerne_chs)
+write.csv(lyric.list, file="../output/lyric_emotion.csv")
+```
+```{r, message=FALSE}
+lyric_emo <- read.csv("../output/lyric_emotion.csv")
+
+lyric_emo$typemotion <- apply(select(lyric_emo, 
+                                    anticipation:sadness), 
+                                 1, which.max
+                               )
+lyric_emo$typemotion.val <- apply(select(lyric_emo, 
+                                    anticipation:sadness), 
+                                 1, max
+                               )
+lyric_emo.Af <- lyric_emo %>% 
+  filter(time=="After 2000") %>% 
+  mutate(song=1:length(song))
+lyric_emo.Bf <- lyric_emo %>% 
+  filter(time=="Before 2000") %>% 
+  mutate(song=1:length(song))
+
+lyric_emo <- rbind(lyric_emo.Bf, lyric_emo.Af) %>% 
+  select(time, song, typemotion, typemotion.val) %>% 
+  mutate(typemotion=case_when(typemotion==1 ~ "anticipation", 
+                              typemotion==2 ~ "joy", 
+                              typemotion==3 ~ "surprise", 
+                              typemotion==4 ~ "trust", 
+                              typemotion==5 ~ "anger", 
+                              typemotion==6 ~ "disgust", 
+                              typemotion==7 ~ "fear", 
+                              typemotion==8 ~ "sadness")
+         ) %>% 
+  filter(typemotion.val!=0)
+
+
+
+```
+#####   The main sentiments of each song in two time period
+```{r beeswarm plot, fig.hight=8}
+# beeswarm of Before 2000
+  beeswarm(typemotion.val~typemotion, 
+           data=lyric_emo %>% filter(time=="Before 2000"), 
+           pch=16,
+           col=alpha(brewer.pal(8, "Set1")), 
+           cex=0.9, 
+           cex.axis=0.8, 
+           cex.lab=1,
+           xlab="Type of songs", 
+           ylab="Emotions Value",
+           main="The Main Emotion of Each Song Before 2000")
+
+# beeswarm of After 2000
+  beeswarm(typemotion.val~typemotion, 
+           data=lyric_emo %>% filter(time=="After 2000"),
+           pch=16,
+           col=alpha(brewer.pal(8, "Set1")), 
+           cex=0.25, 
+           cex.axis=0.8, 
+           cex.lab=1,
+           xlab="Type of songs", 
+           ylab="Emotions Value",
+           main="The Main Emotion of Each Song After 2000")
+```
+
