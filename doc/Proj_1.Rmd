@@ -1,6 +1,6 @@
 ---
 title: "GR 5243 Project 1: Data Story"
-subtitle: "What have been changed of Country Songs when the world came into 21st      Century"
+subtitle: "What have been changed of Country Songs when the world came into 21st Century"
 author: "Yuqiao Liu - yl4278"
 output:
   html_document:
@@ -245,6 +245,10 @@ emotion_lyric_freq %>%
 
 # _Conclusion_
 #### In this project, the main topic is to analyze what makes the country songs not so famous as the 20th century based on the lyrics. In my three questions, the result shows that the main words and the main sentiments of songs have not a significant difference between the 20th and 21st centuries. The only thing changed is the ratio of sentiment words and neutral words, and this ratio shows a decent chance. However, whether a person like a song is not only determined by the lyric, melody is also a big part. We need also to consider the melody to explain why people's favor changes.
+
+
+
+
 
 [Reference: GoogleImage-Country Songs]:(https://www.google.com/imgres?imgurl=https%3A%2F%2Fi.ytimg.com%2Fvi%2Foh3Rk7yT-zc%2Fmaxresdefault.jpg&imgrefurl=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Doh3Rk7yT-zc&docid=89f6oxN1V6pMqM&tbnid=rZ7k7IR1YX2teM%3A&vet=10ahUKEwjyt4_mjrTnAhXNlXIEHS29Df4QMwiAASgEMAQ..i&w=1280&h=720&bih=803&biw=1364&q=country%20songs&ved=0ahUKEwjyt4_mjrTnAhXNlXIEHS29Df4QMwiAASgEMAQ&iact=mrc&uact=8)
 [Reference: GoogleImage-Sentiments]:(https://www.google.com/url?sa=i&source=images&cd=&ved=2ahUKEwj_qMidlrTnAhXNlHIEHYr9CRgQjRx6BAgBEAQ&url=https%3A%2F%2Ftowardsdatascience.com%2Fsentiment-analysis-on-nba-top-players-twitter-account-part3-sentiment-analysis-clustering-5e5dcd4d690f&psig=AOvVaw23LklTdKNl0L7FOmtX6D8s&ust=1580777757136339)
