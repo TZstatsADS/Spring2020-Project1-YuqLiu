@@ -104,7 +104,7 @@ genre_chs_freq %>%
 
 [Reference: GoogleImage-Sentiments]
 
-#### Although there is not a change of the main word used in lyrics, we still cannot say lyrics are not changes. Sometimes the sentiments of a song are not decided by the main word in lyrics, as a result, a sentiments analysis is necessary. In this sentimental analysis, eight sentiments will be considered and the sentiments of a song are determined by the most sentiments that appeared in this song.
+#### Although there is not a change of the main word used in lyrics, we still cannot say lyrics are not changes. Sometimes the sentiments of a song are not decided by the main word in lyrics, as a result, a sentiments analysis is necessary. In this sentimental analysis, eight sentiments will be considered and the sentiments of a song are determined by the most sentiments that appeared in this song. The sentiment data is in the output file.
 ```{r sentmental ANA preparing, eval=FALSE, message=FALSE, warning=FALSE, evl=FALSE, include=FALSE}
 #  This chunk is used for data processing for sentimental part. The output data is     already saved in output file. 
 #  DO NOT RUN!
@@ -175,7 +175,7 @@ lyric_emo <- rbind(lyric_emo.Bf, lyric_emo.Af) %>%
 ```
 ## _The main sentiments of each song in two time period_
 #### A beeswarm plot is a good way to present the sentiment of each song. In the plots below, each dot represents each song, emotions value could clearly show how strong of this main sentiment in a song.
-Even if the number of songs in two periods is different, from both plots, we clearly read that the spread of each sentiment is nearly the same. As a result, the sentiments of country songs have not changed a lot.
+#### Even if the number of songs in two periods is different, from both plots, we clearly read that the spread of each sentiment is nearly the same. As a result, the sentiments of country songs have not changed a lot.
 ```{r beeswarm plot, fig.dim=c(8, 5), fig.align="center"}
 # beeswarm of Before 2000
   beeswarm(typemotion.val~typemotion, 
@@ -204,7 +204,7 @@ Even if the number of songs in two periods is different, from both plots, we cle
 
 # _Question 3: Did the songs become more or less sentimental?_
 #### The main sentiment of the song is not the only determinant that attracts people. Except for the sentimental words, there is a kind of word called the neutral word, and the ratio that neutral words in a song will make a person like this song or not. For example, you like a song because the joy words and the emotion values of joy are the same in whole sentimental words but the second song has a much more neutral word. Which one you will like more?
-This part, I use the "bing" package to match the sentiment of each stemmedword in each song, and then to see the sentimental and neutral words usage frequency in each period. 
+#### This part, I use the "nrc" package to match the sentiment of each stemmedword in each song, and then to see the sentimental and neutral words usage frequency in each period. 
 ```{r Sentmental or not, warning=FALSE, message=FALSE}
 nrc_senti <- get_sentiments("nrc")
 
