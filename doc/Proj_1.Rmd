@@ -8,6 +8,17 @@ output:
     code_folding: hide
 ---
 ```{r Packages, message=FALSE, warning=FALSE}
+packages.used=c("tidyverse","tidytext", "tm", 
+                "RColorBrewer", "wordcloud", "reshape2", 
+                "syuzhet", "sentimentr", "stringr", "beeswarm")
+# check packages that need to be installed.
+packages.needed=setdiff(packages.used, 
+                        intersect(installed.packages()[,1], 
+                                  packages.used))
+# install additional packages
+if(length(packages.needed)>0){
+  install.packages(packages.needed, dependencies = TRUE)
+}
 # Load the required packages and data
 library(tidyverse)
 library(tidytext)
